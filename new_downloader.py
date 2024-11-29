@@ -154,7 +154,7 @@ def main(vUrl, TID, plain_title=True):
     #     else:
     #         title = get_chs_title_twice(title)
     # title=re.sub(u"([^\u4e00-\u9fa5\u0030-\u0039\u0041-\u005a\u0061-\u007a\u3040-\u31FF\uFF00-\uFFA0\u0020\u3000])", '', title)
-
+    
     if len(title) > 80:
         title = title[:80]
 
@@ -172,9 +172,9 @@ def main(vUrl, TID, plain_title=True):
 
     # Determine command based on OS
     if platform.system() == "Windows":
-        cmd_prefix = ".\biliup"  # Use .\ on Windows
+        cmd_prefix = r".\biliup.exe"  # Use .\ on Windows
     else:
-        cmd_prefix = "./biliup"  # Use ./ on Linux
+        cmd_prefix = r"./biliup"  # Use ./ on Linux
 
     CMD = (
         cmd_prefix
