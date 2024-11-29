@@ -5,12 +5,13 @@ import shutil
 import sys
 import time
 import base64
+import platform
+
 import requests
 import yt_dlp
 from PIL import Image
+
 import title_unsearch
-import subprocess
-import platform
 
 OWNER_NAME = "Aynxul"
 REMOVE_FILE = True  # 是否删除投稿后的视频文件
@@ -35,7 +36,9 @@ def cover_webp_to_jpg(webp_path, jpg_path):
 def download(youtube_url, folder_name):
     ydl_opts = {
         # outtmpl 格式化下载后的文件名，避免默认文件名太长无法保存
-        "outtmpl": "./videos/" + str(folder_name) + "/%(id)s.mp4"
+        "outtmpl": "./videos/"
+        + str(folder_name)
+        + "/%(id)s.mp4"
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -145,6 +148,13 @@ def main(vUrl, TID, plain_title=True):
     download_image(cover, id_)
     cover_webp_to_jpg(os.path.join(sub_dir, "cover.webp"), os.path.join(sub_dir, "cover.jpg"))
 
+    # if plain_title:
+    #     if not judge_chs(title):  # 不包含中文
+    #         title = title_unsearch.plain_title(title)
+    #     else:
+    #         title = get_chs_title_twice(title)
+    # title=re.sub(u"([^\u4e00-\u9fa5\u0030-\u0039\u0041-\u005a\u0061-\u007a\u3040-\u31FF\uFF00-\uFFA0\u0020\u3000])", '', title)
+
     if len(title) > 80:
         title = title[:80]
 
@@ -158,10 +168,17 @@ def main(vUrl, TID, plain_title=True):
 
     if plain_title:
         vUrl = "youtube.com"
-    
-    # Build the upload command
+        # description = "-"
+
+    # Determine command based on OS
+    if platform.system() == "Windows":
+        cmd_prefix = ".\biliup"  # Use .\ on Windows
+    else:
+        cmd_prefix = "./biliup"  # Use ./ on Linux
+
     CMD = (
-        "biliup upload "
+        cmd_prefix
+        + " upload "
         + videoPath
         + " --desc "
         + get_double(description)
@@ -174,6 +191,8 @@ def main(vUrl, TID, plain_title=True):
         + get_double(vUrl)
         + " --line " 
         + LineN
+        # + "--dynamic "
+        # + get_double("原标题的base64编码（*2）：" + get_base64_twice(dynamic_title))
         + " --title "
         + get_double(title)
         + " --cover "
@@ -182,20 +201,9 @@ def main(vUrl, TID, plain_title=True):
 
     print("[🚀 origin title]: ", title)
     print("[🚀 Start to using biliup, with these CMD commend]:\n", CMD)
-
-    # 检测当前操作系统
-    current_os = platform.system().lower()
-
-    # 在 Windows 中执行命令
-    if current_os == 'windows':
-        result = subprocess.run(CMD, shell=True, text=True, capture_output=True)
-    else:
-        result = subprocess.run(CMD, shell=False, text=True, capture_output=True)
-    
-    biliupOutput = result.stdout
-
-    if "投稿成功" not in biliupOutput:
-        if "标题相同" not in biliupOutput:
+    biliupOutput = "".join(os.popen(CMD).readlines())
+    if biliupOutput.find("投稿成功") == -1:
+        if biliupOutput.find("标题相同") == -1:
             print(biliupOutput)
             print(
                 "👻 投稿失败.\n👻 解决问题参考 https://github.com/oiov/u2b/issues or https://github.com/ForgQi/biliup-rs/issues "
