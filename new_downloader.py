@@ -12,7 +12,7 @@ from PIL import Image
 
 import title_unsearch
 
-OWNER_NAME = "盛佳冉"
+OWNER_NAME = "Aynxul"
 REMOVE_FILE = True  # 是否删除投稿后的视频文件
 LineN = "qn" # 线路 cos bda2 qn ws kodo
 
