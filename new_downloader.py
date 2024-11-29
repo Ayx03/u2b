@@ -118,6 +118,9 @@ def cut_tags(tags):
 
 
 def main(vUrl, TID, plain_title=True):
+    # 定义允许2000字符简介的TID列表
+    long_description_tid_list = [21]  # 这里只是举例，添加实际需要的TID
+
     info = get_info(vUrl)
     title = info["title"]
     dynamic_title = title
